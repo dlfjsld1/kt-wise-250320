@@ -1,7 +1,6 @@
 package com.think.domain.wiseSaying.service
 
 import com.think.domain.wiseSaying.entity.WiseSaying
-import com.think.domain.wiseSaying.repository.WiseSayingRepository
 import com.think.global.SingletonScope
 
 class WiseSayingService {
