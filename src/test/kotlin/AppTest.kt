@@ -1,4 +1,6 @@
+import com.think.global.SingletonScope
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class AppTest {
@@ -16,6 +18,11 @@ class AppTest {
         assertThat(out).contains("명언:")
         assertThat(out).contains("작가:")
         assertThat(out).contains("1번 명언이 등록되었습니다.")
+    }
+
+    @BeforeEach
+    fun setUp() {
+        SingletonScope.wiseSayingRepository.clear()
     }
 
     @Test

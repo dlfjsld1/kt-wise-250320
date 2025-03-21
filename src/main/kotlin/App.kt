@@ -3,11 +3,12 @@ package com.think
 import com.think.domain.system.controller.SystemController
 import com.think.domain.wiseSaying.controller.WiseSayingController
 import com.think.global.Request
+import com.think.global.SingletonScope
 
 class App {
     fun run() {
-        val wiseSayingController = WiseSayingController()
-        val systemController = SystemController()
+        val wiseSayingController = SingletonScope.wiseSayingController
+        val systemController = SingletonScope.systemController
 
         println("== 명언 앱 ==")
         while (true) {

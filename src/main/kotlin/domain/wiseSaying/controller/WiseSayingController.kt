@@ -3,11 +3,11 @@ package com.think.domain.wiseSaying.controller
 import com.think.domain.wiseSaying.entity.WiseSaying
 import com.think.domain.wiseSaying.service.WiseSayingService
 import com.think.global.Request
+import com.think.global.SingletonScope
 
 class WiseSayingController {
 
-    val wiseSayings = mutableListOf<WiseSaying>()
-    val wiseSayingService = WiseSayingService()
+    val wiseSayingService = SingletonScope.wiseSayingService
 
     fun write() {
         print("명언: ")

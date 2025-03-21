@@ -20,8 +20,8 @@ class TestBot {
             ByteArrayOutputStream().use { out ->
                 PrintStream(out).use {
                     try {
-                        System.setOut(it)
                         System.setIn(formattedInput.byteInputStream()) // 커스텀 입력 - 매개변수 문자열
+                        System.setOut(it)
 
                         val app = App()
                         app.run()

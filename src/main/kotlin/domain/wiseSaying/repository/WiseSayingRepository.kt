@@ -33,4 +33,9 @@ class WiseSayingRepository {
     fun findById(id: Int): WiseSaying? {
         return wiseSayings.find { it.id == id }
     }
+
+    fun clear() {
+        wiseSayings.clear()
+        lastId = 0
+    }
 }
