@@ -45,4 +45,40 @@ class WiseSayingController(
             println("${id}번 명언은 존재하지 않습니다.")
         }
     }
+
+    fun modify(rq: Request) {
+        val id = rq.getParam("id")?.toIntOrNull()
+
+        if (id == null) {
+            println("수정할 명언의 번호를 입력해주세요.")
+            return
+        }
+
+        val wiseSaying = wiseSayings.find { it.id == id }
+
+        wiseSaying?.let {
+            println("명언(기존) : ${it.saying}")
+            print("명언: ")
+            val saying = readlnOrNull() ?: ""
+
+            println("작가(기존) : ${it.author}")
+            print("작가: ")
+            val author = readlnOrNull() ?: ""
+
+            //복사본 일부만 커스터마이징해서 만들기
+            val new = it.copy(author = author, saying = saying)
+
+            //id가 동일한 첫 번째 인덱스를 찾는다
+            val index = wiseSayings.indexOfFirst { it.id == id }
+
+            if(index == -1) {
+                println("${id}번 명언은 존재하지 않습니다.")
+                return
+            }
+
+            wiseSayings[index] = new
+            println("${id}번 명언을 수정했습니다.")
+        }
+
+    }
 }
