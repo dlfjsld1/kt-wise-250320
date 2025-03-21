@@ -10,7 +10,8 @@ import com.think.domain.wiseSaying.service.WiseSayingService
 // by lazy{}로 요청 시 불러오도록 함
 object SingletonScope {
     val wiseSayingRepository by lazy { WiseSayingFileRepository() }
-val wiseSayingService by lazy { WiseSayingService() }
+    val wiseSayingFileRepository by lazy { WiseSayingFileRepository() }
+    val wiseSayingService by lazy { WiseSayingService() }
     val wiseSayingController by lazy { WiseSayingController() }
     val systemController by lazy { SystemController() }
 }
