@@ -1,9 +1,16 @@
+
 import com.think.global.SingletonScope
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class AppTest {
+
+    @BeforeEach
+    fun setUp() {
+        SingletonScope.wiseSayingRepository.clear()
+        SingletonScope.wiseSayingRepository.initTable()
+    }
 
     @Test
     fun `명언 등록`() {
@@ -15,15 +22,11 @@ class AppTest {
             """
         )
 
+        println(out)
+
         assertThat(out).contains("명언:")
         assertThat(out).contains("작가:")
         assertThat(out).contains("1번 명언이 등록되었습니다.")
-    }
-
-    @BeforeEach
-    fun setUp() {
-        SingletonScope.wiseSayingRepository.clear()
-        SingletonScope.wiseSayingRepository.initTable()
     }
 
     @Test
@@ -92,14 +95,14 @@ class AppTest {
     fun `빌드`() {
         val result = TestBot.run(
             """
-            등록
-            나의 죽음을 적들에게 알리지 말라.
-            충무공 이순신
-            등록
-            천재는 99%의 노력과 1%의 영감이다.
-            에디슨
-            빌드
-        """
+             등록
+             나의 죽음을 적들에게 알리지 말라.
+             충무공 이순신
+             등록
+             천재는 99%의 노력과 1%의 영감이다.
+             에디슨
+             빌드
+         """
         )
 
         assertThat(result)
@@ -110,14 +113,14 @@ class AppTest {
     fun `목록(검색)`() {
         val result = TestBot.run(
             """
-            등록
-            현재를 사랑하라.
-            작자미상
-            등록
-            과거에 집착하지 마라.
-            작자미상
-            목록?keywordType=content&keyword=과거
-        """
+             등록
+             현재를 사랑하라.
+             작자미상
+             등록
+             과거에 집착하지 마라.
+             작자미상
+             목록?keywordType=content&keyword=과거
+         """
         )
 
         assertThat(result)
@@ -130,19 +133,78 @@ class AppTest {
             .contains("2 / 작자미상 / 과거에 집착하지 마라.")
     }
 
+
     @Test
-    fun `makeSampleData`() {
+    fun `목록(페이징) - page=1`() {
         TestBot.makeSampleData(10)
 
-        val out = TestBot.run(
+        val result = TestBot.run(
             """
-                목록
-            """.trimIndent()
+             목록
+             """
         )
 
-        println(out)
+        println(result)
 
-        assertThat(out).contains("1 / ")
-        assertThat(out).contains("10 / ")
+        assertThat(result)
+            .contains("10 / 작자미상 / 명언 10")
+            .contains("6 / 작자미상 / 명언 6")
+            .doesNotContain("5 / 작자미상 / 명언 5")
+            .doesNotContain("1 / 작자미상 / 명언 1")
+            .contains("페이지 : [1] 2")
+    }
+
+    @Test
+    fun `목록(페이징) - page=2`() {
+        TestBot.makeSampleData(10)
+
+        val result = TestBot.run(
+            """
+             목록?page=2
+             """
+        )
+
+        assertThat(result)
+            .doesNotContain("10 / 작자미상 / 명언 10")
+            .doesNotContain("6 / 작자미상 / 명언 6")
+            .contains("5 / 작자미상 / 명언 5")
+            .contains("1 / 작자미상 / 명언 1")
+            .contains("페이지 : 1 [2]")
+    }
+
+    @Test
+    fun `목록?page=2&keywordType=saying&keyword=명언`() {
+        TestBot.makeSampleData(10)
+
+        val result = TestBot.run(
+            """
+             목록?page=2&keywordType=saying&keyword=명언
+             """.trimIndent()
+        )
+
+        assertThat(result)
+            .doesNotContain("10 / 작자미상 / 명언 10")
+            .doesNotContain("6 / 작자미상 / 명언 6")
+            .contains("5 / 작자미상 / 명언 5")
+            .contains("1 / 작자미상 / 명언 1")
+            .contains("페이지 : 1 [2]")
+    }
+
+    @Test
+    fun `목록?page=1&keywordType=saying&keyword=1`() {
+        TestBot.makeSampleData(10)
+
+        val result = TestBot.run(
+            """
+             목록?page=1&keywordType=saying&keyword=1
+             """.trimIndent()
+        )
+
+        assertThat(result)
+            .contains("10 / 작자미상 / 명언 10")
+            .doesNotContain("9 / 작자미상 / 명언 9")
+            .doesNotContain("2 / 작자미상 / 명언 2")
+            .contains("1 / 작자미상 / 명언 1")
+            .contains("페이지 : [1]")
     }
 }

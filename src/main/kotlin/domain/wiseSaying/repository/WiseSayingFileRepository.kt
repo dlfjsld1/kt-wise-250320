@@ -3,6 +3,7 @@ package com.think.domain.wiseSaying.repository
 import com.think.domain.wiseSaying.entity.WiseSaying
 import com.think.global.AppConfig
 import com.think.standard.JsonUtil
+import com.think.standard.Page
 import java.nio.file.Path
 
 class WiseSayingFileRepository : WiseSayingRepository {
@@ -15,8 +16,8 @@ class WiseSayingFileRepository : WiseSayingRepository {
         get() = AppConfig.tableDirPath.resolve("wiseSaying")
 
     override fun save(wiseSaying: WiseSaying): WiseSaying {
-        val target = if (wiseSaying.isNew()) wiseSaying.copy(id = genNextId())
-        else wiseSaying
+
+        val target = if (wiseSaying.isNew()) wiseSaying.copy(id = getNextId()) else wiseSaying
 
         return target.also {
             saveOnDisk(it)
@@ -32,14 +33,13 @@ class WiseSayingFileRepository : WiseSayingRepository {
             .listFiles()
             ?.filter { it.extension == "json" }
             ?.map { WiseSaying.fromJson(it.readText()) }
+            ?.sortedByDescending { it.id }
             .orEmpty()
-
     }
 
     override fun findById(id: Int): WiseSaying? {
-        //.resolve는 폴더를 리턴함. toFile()으로 파일로 변환
         return tableDirPath.resolve("${id}.json").toFile()
-            .takeIf{ it.exists() }
+            .takeIf { it.exists() }
             ?.let {
                 WiseSaying.fromJson(it.readText())
             }
@@ -50,24 +50,75 @@ class WiseSayingFileRepository : WiseSayingRepository {
     }
 
     override fun clear() {
-        //파일 폴더 전부 재귀적으로 삭제
         tableDirPath.toFile().deleteRecursively()
     }
 
     override fun findByAuthorLike(keyword: String): List<WiseSaying> {
+
         if (keyword.isBlank()) {
             return findAll()
         }
+
         return findAll()
-            .filter{ it.author.contains(keyword) }
+            .filter { it.author.contains(keyword) }
     }
 
     override fun findBySayingLike(keyword: String): List<WiseSaying> {
         if (keyword.isBlank()) {
             return findAll()
         }
+
         return findAll()
-            .filter{ it.saying.contains(keyword) }
+            .filter { it.saying.contains(keyword) }
+    }
+
+    fun findAllPaged(page: Int, pageSize: Int): List<WiseSaying> {
+        return findAll()
+            .drop((page - 1) * pageSize)
+            .take(pageSize)
+    }
+
+    override fun findByAuthorLikePaged(keyword: String, page: Int, pageSize: Int): Page {
+
+        var totalCount = findAll().size
+
+        if (keyword.isBlank()) {
+            return findAllPaged(page, pageSize).let {
+                Page(it, totalCount, page, pageSize)
+            }
+        }
+
+        val searchedWiseSayings = findAll()
+            .filter { it.author.contains(keyword) }
+
+        totalCount = searchedWiseSayings.size
+
+        val content = searchedWiseSayings
+            .drop((page - 1) * pageSize)
+            .take(pageSize)
+
+        return Page(content, totalCount, page, pageSize)
+    }
+
+    override fun findBySayingLikePaged(keyword: String, page: Int, pageSize: Int): Page {
+        var totalCount = findAll().size
+
+        if (keyword.isBlank()) {
+            return findAllPaged(page, pageSize).let {
+                Page(it, totalCount, page, pageSize)
+            }
+        }
+
+        val searchedWiseSayings = findAll()
+            .filter { it.saying.contains(keyword) }
+
+        totalCount = searchedWiseSayings.size
+
+        val content = searchedWiseSayings
+            .drop((page - 1) * pageSize)
+            .take(pageSize)
+
+        return Page(content, totalCount, page, pageSize)
     }
 
     fun saveLastId(id: Int) {
@@ -77,14 +128,13 @@ class WiseSayingFileRepository : WiseSayingRepository {
     fun loadLastId(): Int {
         tableDirPath.resolve("lastId.txt").toFile().run {
             if (!exists()) {
-                return 0
+                return 1
             }
             return readText().toInt()
         }
-
     }
 
-    private fun genNextId(): Int {
+    private fun getNextId(): Int {
         return loadLastId().also {
             saveLastId(it + 1)
         }
@@ -92,7 +142,7 @@ class WiseSayingFileRepository : WiseSayingRepository {
 
     fun initTable() {
         tableDirPath.toFile().run {
-            if(!exists()) {
+            if (!exists()) {
                 mkdirs()
             }
         }
@@ -103,9 +153,11 @@ class WiseSayingFileRepository : WiseSayingRepository {
             it.map
         }
 
-        JsonUtil.listToJson(mapList).also {
+        val rst = JsonUtil.listToJson(mapList).also {
             tableDirPath.resolve("data.json").toFile().writeText(it)
         }
+
+        println(rst)
 
     }
 }
