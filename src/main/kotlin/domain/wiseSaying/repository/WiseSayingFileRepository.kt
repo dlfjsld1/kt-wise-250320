@@ -27,7 +27,12 @@ class WiseSayingFileRepository : WiseSayingRepository {
     }
 
     override fun findAll(): List<WiseSaying> {
-        return listOf()
+        return tableDirPath.toFile()
+            .listFiles()
+            ?.filter { it.extension == "json" }
+            ?.map { WiseSaying.fromJson(it.readText()) }
+            .orEmpty()
+
     }
 
     override fun findById(id: Int): WiseSaying? {
