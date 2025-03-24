@@ -6,7 +6,7 @@ object JsonUtil {
         return list.joinToString(
             prefix = "[\n", postfix = "\n]", separator = ",\n"
         ) {
-            mapToJson(it)
+            mapToJson(it).prependIndent("    ")
         }
     }
 
@@ -14,7 +14,6 @@ object JsonUtil {
         return map.entries.joinToString(
             prefix = "{\n", postfix = "\n}", separator = ",\n"
         ) { (key, value) ->
-            {
                 val formattedKey = "\"$key\""
                 val formattedValue = when (value) {
                     is String -> "\"$value\""
@@ -22,7 +21,6 @@ object JsonUtil {
                 }
 
                 "    $formattedKey: $formattedValue"
-            }.toString()
         }
     }
 
