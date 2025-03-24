@@ -36,11 +36,16 @@ class WiseSayingFileRepository : WiseSayingRepository {
     }
 
     override fun findById(id: Int): WiseSaying? {
-        return null
+        //.resolve는 폴더를 리턴함. toFile()으로 파일로 변환
+        return tableDirPath.resolve("${id}.json").toFile()
+            .takeIf{ it.exists() }
+            ?.let {
+                WiseSaying.fromJson(it.readText())
+            }
     }
 
     override fun delete(wiseSaying: WiseSaying) {
-
+        tableDirPath.resolve("${wiseSaying.id}.json").toFile().delete()
     }
 
     override fun clear() {
