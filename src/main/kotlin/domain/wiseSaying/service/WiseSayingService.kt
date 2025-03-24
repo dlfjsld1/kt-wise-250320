@@ -28,4 +28,8 @@ class WiseSayingService {
         return wiseSayingRepository.save(wiseSaying.copy(saying = saying, author = author))
 
     }
+
+    fun build() {
+        wiseSayingRepository.build()
+    }
 }

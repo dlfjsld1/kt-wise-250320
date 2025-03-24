@@ -19,6 +19,14 @@ data class WiseSaying(
                 "author": "$author"
             }
         """.trimIndent()
+
+    val map: Map<String, Any>
+        get() = mapOf(
+            "id" to id,
+            "saying" to saying,
+            "author" to author
+        )
+    
     companion object {
         fun fromJson(jsonStr: String): WiseSaying {
             val jsonMap = JsonUtil.jsonStrToMap(jsonStr)

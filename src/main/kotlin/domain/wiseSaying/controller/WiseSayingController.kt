@@ -70,4 +70,9 @@ class WiseSayingController {
         }
 
     }
+
+    fun build() {
+        wiseSayingService.build()
+        println("data.json 파일의 내용이 갱신되었습니다.")
+    }
 }
